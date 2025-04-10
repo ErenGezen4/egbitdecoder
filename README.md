@@ -9,3 +9,6 @@ sudo cp egbitdecoder /usr/local/bin/
 sudo chmod +x /usr/local/bin/egbitdecoder
 
 egbitdecoder -h
+
+
+toolun detaylı kullanımı için kullanma_klavuzu.txt yi inceleyebilirsiniz.
