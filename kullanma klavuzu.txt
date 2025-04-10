@@ -1,0 +1,99 @@
+egbitdecoder kullanım klavuzu
+
+----------------------------------------------------------------------------------------
+
+png resim dosyalarının bitlerinde gizli metinleri bulmak için oluşturduğum bir tooldur.
+
+toolun kullanımında -p parametresi önemlidir. -p parametresi katıldığınız ctf teki flag formatını öğrenmek içindir ve bu formatta bir flag yakalarsa tool otomatik olarak durur.
+
+örneğin hxCTF{lsb_msb_b1t_d3c0d3r} formatında flagler arıyorsanız; "egbitdecoder -p hxCTF image.png" demeniz gerekmektedir.
+
+egbitdecoder LSB ve MSB olarak 2 farklı modda çalışabilmektedir.
+
+----------------------------------------------------------------------------------------
+LSB MSB GPT TANIMI:
+
+LSB (Least Significant Bit) ve MSB (Most Significant Bit) dijital sistemlerdeki bitlerin sırasını ve önem derecelerini tanımlar. Bu kavramlar özellikle ikili (binary) sayılar ve bilgisayar bilimlerinde yaygın olarak kullanılır.
+
+1. MSB (Most Significant Bit)
+Türkçesi: En Önemli Bit
+
+Tanım: Bir ikili (binary) sayıda, MSB, en yüksek değeri temsil eden ilk bit'tir. Yani, en soldaki bit, sayının en büyük değerini ifade eder.
+
+Örnek: 8 bitlik bir sayı olan 10111001'da, MSB 1'dir, çünkü bu bit sayının en büyük değerini belirler (128'lik kısmı).
+
+2. LSB (Least Significant Bit)
+Türkçesi: En Az Önemli Bit
+
+Tanım: LSB, bir ikili sayıda, en düşük değeri temsil eden son bit'tir. Yani, en sağdaki bit, sayının en küçük değerini ifade eder.
+
+Örnek: 8 bitlik bir sayı olan 10111001'da, LSB 1'dir, çünkü bu bit sayının en küçük değerini belirler (1'lik kısmı).
+
+----------------------------------------------------------------------------------------
+
+Tool defoult olarak LSB çözmeye odaklıdır. -m parametresi ile bu modlar arasında geçiş yapmak mümkündür. (-m lsb  /   -m msb)
+
+Önemli olarak ctf sorularında her pixele gizli veri konulacak diye bir durum yoktur. 3 pixelde bir veya 10 pixelde bir de bu veriler gizlenmiş olabilmektedir. 
+egbitdecoder bu aralığı sizin de bilmediğiniz durumlarda da flag değerini bulabilmek için ilk olarak 0 pizel arayla sonra 1 pixel arayla diye aratarak gidicek şekilde bir tarama yapmaktadır.
+bu pixel taramasının defoult aralığı 300 pixeldir.
+
+--step-range parametresini kullanarak bunu arttırabilirsiniz.
+
+örnek kullanım: egbitdecoder -p hxCTF --step-range 1000 image.png
+
+----------------------------------------------------------------------------------------
+
+Aynı zamanda genelde ctf pixellere yatay bir biçimde flag saklanır. Fakat bazı ctf lerde dikey şekilde saklanmış sorular da bulunmaktadır.
+Yatay düzlemde flag bulamadığınız takdirde dikey düzlemde de tarama yapabilmeniz için -d parametresi eklenmiştir.
+Tool defoult olarak yatay tarama yapar
+
+örnek kullanım: egbitdecoder -p hxCTF -d dikey image.png
+
+----------------------------------------------------------------------------------------
+
+Pixellere gizlenmiş veriler sadece tek bir renk kanalına da gizlenmiş olabilir. örneğin sadece kırmızı renk kanalına saklanmış bir flag olabilir.
+Bu durumlarda flagi çıkartabilmeniz için -c parametresini kullanarak renk kanallarına has taramalar da yapabilirsiniz.
+
+(potansiyel renk kanalları; r(red) g(green) b(blue) a(alpha)  rgb(red, green, blue) rgba(red, green, blue, alpha) )
+
+tool defoult olarak rgb kanallarını tarar
+
+örnek kullanım: egbitdecoder -p hxCTF -c rgba image.png
+
+----------------------------------------------------------------------------------------
+
+LSB veya MSB ile gizlenmiş veriler her zaman son bite değil de son 2 bite de saklanmış olabilmektedir.
+Son 2 bitteki değerleri alıp o şekilde decode etmesini isterseniz bu sefer --bit-depth parametresini kullanabilirsiniz.
+egbitdecoder defoult olarak sondaki 1 biti kontrol etmektedir.
+
+örnek kullanım: egbitdecoder -p hxCTF --bit-depth 2 image.png
+
+
+özet olarak:
+
+positional arguments:
+  image                 Girdi resmi (örn: image.png)
+
+options:
+  -h, --help            show this help message and exit
+  -p, --prefix PREFIX   Flag başlığı (örn: CTF, picoCTF, flag)
+  -m, --mode {lsb,msb}  Tarama modu: lsb veya msb (varsayılan: lsb)
+  --step-range STEP_RANGE
+                        Kaç farklı piksel aralığı taransın (varsayılan: 300)
+  -d, --direction {yatay,dikey}
+                        Tarama yönü: yatay veya dikey (varsayılan: yatay)
+  -c, --channel {r,g,b,a,rgb,rgba}
+                        Kullanılacak kanal(lar): r, g, b, a, rgb, rgba (varsayılan: rgb)
+  --bit-depth {1,2,3,4}
+                        Bit derinliği (1-4 arasında, varsayılan: 1)
+
+
+                                                                                                                                                       Created by Eren Gezen
+
+
+
+
+
+
+
+
