@@ -1,0 +1,176 @@
+#!/usr/bin/env python3
+import sys
+import base64
+import binascii
+import re
+import argparse
+from PIL import Image
+from rich.console import Console
+from rich.table import Table
+from rich.panel import Panel
+from rich import box
+
+console = Console()
+
+def decode_bits(img, step, mode, direction, channel, bit_depth=1):
+    pixels = list(img.getdata())
+    width, height = img.size
+    bits = ''
+
+    def get_pixel_index(i):
+        if direction == "yatay":
+            return i
+        elif direction == "dikey":
+            x = i % width
+            y = i // width
+            if y >= height:
+                return None
+            return y + x * height if x * height + y < len(pixels) else None
+
+    for i in range(0, len(pixels), step + 1):
+        idx = get_pixel_index(i)
+        if idx is None or idx >= len(pixels):
+            break
+
+        pixel = pixels[idx]
+        r, g, b = pixel[:3]
+        a = pixel[3] if len(pixel) == 4 else 0
+
+        def extract_bits(value):
+            if mode == "msb":
+                return format((value >> (8 - bit_depth)) & ((1 << bit_depth) - 1), f'0{bit_depth}b')
+            else:
+                return format(value & ((1 << bit_depth) - 1), f'0{bit_depth}b')
+
+        if channel == "r":
+            bits += extract_bits(r)
+        elif channel == "g":
+            bits += extract_bits(g)
+        elif channel == "b":
+            bits += extract_bits(b)
+        elif channel == "a":
+            bits += extract_bits(a)
+        elif channel == "rgb":
+            bits += extract_bits(r) + extract_bits(g) + extract_bits(b)
+        elif channel == "rgba":
+            bits += extract_bits(r) + extract_bits(g) + extract_bits(b) + extract_bits(a)
+
+    return bits
+
+def bits_to_ascii(bits):
+    chars = []
+    for i in range(0, len(bits), 8):
+        byte = bits[i:i+8]
+        if len(byte) < 8:
+            break
+        chars.append(chr(int(byte, 2)))
+    return ''.join(chars)
+
+def safe_base64_decode(data):
+    try:
+        padding = '=' * (-len(data) % 4)
+        decoded = base64.b64decode(data + padding).decode(errors='ignore')
+        return decoded
+    except Exception:
+        return "[Base64 decode başarısız]"
+
+def safe_hex_decode(data):
+    try:
+        return bytes.fromhex(data).decode(errors='ignore')
+    except Exception:
+        return "[Hex decode başarısız]"
+
+def find_base64_like_strings(text):
+    pattern = r'([A-Za-z0-9+/=]{8,})'
+    return re.findall(pattern, text)
+
+def analyze_step(img, step, flag_prefix, mode, direction, channel, bit_depth):
+    bits = decode_bits(img, step, mode, direction, channel, bit_depth)
+    ascii_text = bits_to_ascii(bits)
+    base64_decoded = safe_base64_decode(ascii_text)
+    hex_decoded = safe_hex_decode(ascii_text)
+
+    table = Table(title=f"{mode.upper()} Tarama - Piksel Aralığı: {step + 1} - Bit Derinliği: {bit_depth}", box=box.SIMPLE)
+    table.add_column("Alan", style="bold cyan")
+    table.add_column("İçerik", style="white")
+
+    table.add_row("[1] İlk 256 Bit", bits[:256])
+    table.add_row("[2] ASCII", ascii_text[:200])
+    table.add_row("[3] Base64 Decode", base64_decoded[:200])
+    table.add_row("[4] Hex Decode", hex_decoded[:200])
+
+    console.print(table)
+
+    for text in [ascii_text, base64_decoded]:
+        if flag_prefix + "{" in text:
+            flag = text[text.find(flag_prefix + "{"):text.find("}", text.find(flag_prefix + "{")) + 1]
+            return flag, True
+
+    base64_candidates = find_base64_like_strings(ascii_text)
+    for candidate in base64_candidates:
+        decoded = safe_base64_decode(candidate)
+        if flag_prefix + "{" in decoded:
+            flag = decoded[decoded.find(flag_prefix + "{"):decoded.find("}", decoded.find(flag_prefix + "{")) + 1]
+            console.print(Panel(
+                f"🎯 Base64 adayı bulundu ve çözüldü:\n[bold yellow]{candidate}[/bold yellow]\n[green]{decoded}[/green]",
+                title="Flag Bulundu (Base64 Adayı)",
+                style="green"
+            ))
+            return flag, True
+
+    if base64_candidates:
+        console.print(Panel("Base64 benzeri stringler bulundu fakat flag içerikleri tespit edilemedi:", style="bold red"))
+        for candidate in base64_candidates:
+            decoded = safe_base64_decode(candidate)
+            console.print(f"[bold]Aday:[/bold] {candidate} → [green]{decoded}[/green]")
+
+    return None, False
+
+def main(image_path, flag_prefix, mode, step_range, direction, channel, bit_depth):
+    img = Image.open(image_path)
+    found_flag = None
+
+    for step in range(0, step_range):
+        flag, found = analyze_step(img, step, flag_prefix, mode, direction, channel, bit_depth)
+        if found:
+            found_flag = flag
+            console.print(Panel(f"✅ Tüm tarama durduruldu. Flag bulundu! [bold yellow]{found_flag}[/bold yellow]", title="Sonuç", style="bold green"))
+            return
+
+    if not found_flag:
+        console.print(Panel("❌ Hiçbir aralıkta flag bulunamadı.", title="Tamamlanamadı", style="red"))
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="""
+LSB / MSB Steganografi Decoder
+---------------------------------
+Bu araç, bir PNG resim dosyasındaki gizli veriyi en düşük (LSB) veya en yüksek (MSB) anlamlı bitlerden çıkarmak için kullanılır.
+Flag formatı genellikle CTF yarışmalarında kullanılan 'flag{...}' ya da 'picoCTF{...}' gibi desenlerdir.
+
+Kullanım örnekleri:
+  python3 stegodecoder.py image.png -p flag
+  python3 stegodecoder.py image.png -p CTF -m msb
+  python3 stegodecoder.py image.png -p picoCTF --step-range 200 --direction dikey --channel r --bit-depth 2
+
+Desteklenen modlar:
+  - LSB: En düşük anlamlı bit (varsayılan)
+  - MSB: En yüksek anlamlı bit (gizlenmiş verinin daha belirgin olduğu durumlar için)
+
+  Created By Eren Gezen
+
+
+        """,
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+
+    parser.add_argument("image", help="Girdi resmi (örn: image.png)")
+    parser.add_argument("-p", "--prefix", required=True, help="Flag başlığı (örn: CTF, picoCTF, flag)")
+    parser.add_argument("-m", "--mode", choices=["lsb", "msb"], default="lsb", help="Tarama modu: lsb veya msb (varsayılan: lsb)")
+    parser.add_argument("--step-range", type=int, default=300, help="Kaç farklı piksel aralığı taransın (varsayılan: 300)")
+    parser.add_argument("-d", "--direction", choices=["yatay", "dikey"], default="yatay", help="Tarama yönü: yatay veya dikey (varsayılan: yatay)")
+    parser.add_argument("-c", "--channel", choices=["r", "g", "b", "a", "rgb", "rgba"], default="rgb", help="Kullanılacak kanal(lar): r, g, b, a, rgb, rgba (varsayılan: rgb)")
+    parser.add_argument("--bit-depth", type=int, default=1, choices=[1, 2, 3, 4], help="Bit derinliği (1-4 arasında, varsayılan: 1)")
+
+    args = parser.parse_args()
+    main(args.image, args.prefix, args.mode, args.step_range, args.direction, args.channel, args.bit_depth)
