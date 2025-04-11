@@ -18,5 +18,5 @@ toolun detaylı kullanımı için kullanma_klavuzu.txt yi inceleyebilirsiniz.
 ÖNEMLİ!!
 Bu projede gizlenmiş flagleri bulmak için hangi kanal hangi bit derinliği hangi modda çalıştığı gibi belirli bilgileri bilmeniz gerekmektedir.
 Projede otomatik tarama yapan ve bilmeseniz bile flagi size bulup veren versiyonu mevcuttur.
-Ctf yarışmalarımda kendi kullanımım için olduğundan burda tamamen paykaşşmadım
-Eğer bu toolu da isterseniz bana ulaşabilirsiniz
+Ctf yarışmalarımda kendi kullanımım için olduğundan burda tamamen paylaşmadım.
+Eğer tam toolu da isterseniz bana ulaşabilirsiniz
