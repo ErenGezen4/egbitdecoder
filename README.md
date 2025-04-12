@@ -22,3 +22,6 @@ Bu projede gizlenmiş flagleri bulmak için hangi kanal hangi bit derinliği han
 Projede otomatik tarama yapan ve bilmeseniz bile flagi size bulup veren versiyonu mevcuttur.
 Ctf yarışmalarımda kendi kullanımım için olduğundan burda tamamen paylaşmadım.
 Eğer tam toolu da isterseniz bana ulaşabilirsiniz
+
+
+(TAM TOOL ÜNİVERSİTE CTF İNDEN SONRA PAYLAŞILICAKTIR)                                                                                                             13.04.2025
