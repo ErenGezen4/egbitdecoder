@@ -89,7 +89,30 @@ options:
 
 
                                                                                                                                                        Created by Eren Gezen
+                                                                                                                                                                  13.04.2025
+                   
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+LSB MSB Taramaları için otomatik tarama özelliği de eklenmiştir. Bu özellikte tüm renk kanallarını ve renk aralıklarını otomatik olarak tarayıp flag aramaktadır.
+
+--auto yazarak bu özelliği kullanabilirsiniz. fullauto msbauto ve lsbauto olmak üzere 3 farklı otomatik tarama çeşidine sahiptir.
+
+ekstra eklenen özellikleri (offset tarama / manuel export / max-bit-depth / offset-brute vb ) -h parametresinden açıklamasını okuyarak rahatça anlayabilirsiniz.
+
+
+Şu an sadece flag formatı üzerinden çalışmaktadır fakat bazı ctf lerde flag yerine yazı yazılmaktadır. Bu yazıları da flag fomrmatı olmaksızın algılayabilmesi için bir llm 
+eklemesi yapıp yapay zekaya analiz ettirmek için çalışıyorum. Bu konuda destek sağlayabiliceğinizi düşünüyorsanız bana ulaşabilirsiniz.  
+
+
+e-mail: erengezen260@gmail.com
+
+Aynı zamanda zsteg'ten çok daha kuvvetli bir tooldur sadece ilk bit taramalarının çıktısını vermemektedir. Bu çıktının da verileceği versiyonu zsteg toolunu daha detaylı bir 
+incelediğim zaman paylaşıcağım. şimdilik beklemede kalın eminim ki maksimum 1 sene içerisinde bu toolu kullanıp çözemediğiniz lsb msb sorusu olmayacak.
+
+                                                                                                                                                                    UPDATED
+                                                                                                                                                                 15.06.2004
+  
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
