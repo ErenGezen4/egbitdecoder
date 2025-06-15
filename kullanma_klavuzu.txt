@@ -110,7 +110,7 @@ Aynı zamanda zsteg'ten çok daha kuvvetli bir tooldur sadece ilk bit taramalar�
 incelediğim zaman paylaşıcağım. şimdilik beklemede kalın eminim ki maksimum 1 sene içerisinde bu toolu kullanıp çözemediğiniz lsb msb sorusu olmayacak.
 
                                                                                                                                                                     UPDATED
-                                                                                                                                                                 15.06.2004
+                                                                                                                                                                 15.06.2025
   
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
